@@ -96,17 +96,19 @@ class Breakout:
           pygame.quit()
 
           sys.exit()
+
+      for ball in self.balls.sprites():
+        if ball.rect.x + ball.rect.width >= Breakout.WIDTH or ball.rect.x <= 0:
+          ball.bounceX()
+
+        if ball.rect.y + ball.rect.height >= Breakout.HEIGHT or ball.rect.y <= 0:
+          ball.bounceY()
+
       self.surface.fill((255, 255, 255))
+
       self.bricks.draw(self.surface)
       self.balls.draw(self.surface)
       self.balls.update()
-
-      for ball in self.balls.sprites():
-        if ball.rect.x >= Breakout.WIDTH or ball.rect.x <= 0:
-          ball.bounceX()
-
-        if ball.rect.y >= Breakout.HEIGHT or ball.rect.y <= 0:
-          ball.bounceY()
 
       pygame.display.flip()
       self.clock.tick(60)
