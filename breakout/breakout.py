@@ -86,6 +86,14 @@ class Breakout:
         bricks.append(brick)
     return pygame.sprite.Group(bricks)
 
+  def handle_collisions(self):
+    for ball in self.balls.sprites():
+      if ball.rect.x + ball.rect.width >= Breakout.WIDTH or ball.rect.x <= 0:
+        ball.bounceX()
+
+      if ball.rect.y + ball.rect.height >= Breakout.HEIGHT or ball.rect.y <= 0:
+        ball.bounceY()
+
   def run(self):
     self.bricks = self.make_bricks()
     ball = Ball(Breakout.WIDTH / 2, Breakout.HEIGHT / 2, Breakout.BALL_RADIUS)
@@ -94,15 +102,9 @@ class Breakout:
       for event in pygame.event.get():
         if event.type == QUIT:
           pygame.quit()
-
           sys.exit()
 
-      for ball in self.balls.sprites():
-        if ball.rect.x + ball.rect.width >= Breakout.WIDTH or ball.rect.x <= 0:
-          ball.bounceX()
-
-        if ball.rect.y + ball.rect.height >= Breakout.HEIGHT or ball.rect.y <= 0:
-          ball.bounceY()
+      self.handle_collisions()
 
       self.surface.fill((255, 255, 255))
 
