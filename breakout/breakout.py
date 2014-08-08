@@ -87,6 +87,10 @@ class Breakout:
     return pygame.sprite.Group(bricks)
 
   def handle_collisions(self):
+    collisions = pygame.sprite.groupcollide(self.balls, self.bricks, False, True)
+    for ball in collisions:
+      ball.bounceY()
+
     for ball in self.balls.sprites():
       if ball.rect.x + ball.rect.width >= Breakout.WIDTH or ball.rect.x <= 0:
         ball.bounceX()
