@@ -3,6 +3,7 @@ import pygame
 from pygame.locals import *
 from pygame.sprite import Sprite
 
+
 pygame.init()
 
 class Ball(Sprite):
@@ -84,10 +85,25 @@ class Breakout:
             + col * Breakout.BRICK_SEP + col * Breakout.BRICK_WIDTH
         brick = Brick(x, y, Breakout.BRICK_SIZE, Breakout.COLORS[row / 2])
         bricks.append(brick)
-    return pygame.sprite.Group(bricks)
+    self.bricks = pygame.sprite.Group(bricks)
+
+  def make_paddle(self):
+    self.paddle = Paddle((Breakout.WIDTH - Breakout.PADDLE_WIDTH) / 2,
+        Breakout.HEIGHT - Breakout.PADDLE_Y_OFFSET,
+        (Breakout.PADDLE_WIDTH, Breakout.PADDLE_HEIGHT),
+        (0, 0, 0))
+    self.paddles = pygame.sprite.Group([self.paddle])
+
+  def make_balls(self):
+    self.ball = Ball(Breakout.WIDTH / 2, Breakout.HEIGHT / 2, Breakout.BALL_RADIUS)
+    self.balls = pygame.sprite.Group([self.ball])
 
   def handle_collisions(self):
     collisions = pygame.sprite.groupcollide(self.balls, self.bricks, False, True)
+    for ball in collisions:
+      ball.bounceY()
+
+    collisions = pygame.sprite.groupcollide(self.balls, self.paddles, False, False)
     for ball in collisions:
       ball.bounceY()
 
@@ -98,22 +114,33 @@ class Breakout:
       if ball.rect.y + ball.rect.height >= Breakout.HEIGHT or ball.rect.y <= 0:
         ball.bounceY()
 
+  def update_screen(self):
+    self.surface.fill((255, 255, 255))
+    self.bricks.draw(self.surface)
+    self.balls.draw(self.surface)
+    self.paddles.draw(self.surface)
+
+  def handle_events(self):
+    for event in pygame.event.get():
+      if event.type == QUIT:
+        pygame.quit()
+        sys.exit()
+      elif event.type == MOUSEMOTION:
+        new_x = event.pos[0] - Breakout.PADDLE_WIDTH / 2
+        new_x = min(max(new_x, 0), Breakout.WIDTH - Breakout.PADDLE_WIDTH)
+        self.paddle.rect.x = new_x
+      else:
+        pass
+
   def run(self):
-    self.bricks = self.make_bricks()
-    ball = Ball(Breakout.WIDTH / 2, Breakout.HEIGHT / 2, Breakout.BALL_RADIUS)
-    self.balls = pygame.sprite.Group([ball])
+    self.make_paddle()
+    self.make_bricks()
+    self.make_balls()
+
     while True:
-      for event in pygame.event.get():
-        if event.type == QUIT:
-          pygame.quit()
-          sys.exit()
-
+      self.handle_events()
       self.handle_collisions()
-
-      self.surface.fill((255, 255, 255))
-
-      self.bricks.draw(self.surface)
-      self.balls.draw(self.surface)
+      self.update_screen()
       self.balls.update()
 
       pygame.display.flip()
